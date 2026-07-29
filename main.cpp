@@ -2,21 +2,20 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 #include <cstring>
+#include "tinyfiledialogs.h"
 
 typedef enum AppScreen { MAIN , ENCODE, DECODE ,ENCODE_OPTIONS,DECODE_OPTIONS} AppScreen;
 int main(){
-    InitWindow(800,450,"Project");
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    InitWindow(800, 450, "Project");
+
+    MaximizeWindow();
+
     SetTargetFPS(60);
     GuiSetStyle(DEFAULT,TEXT_ALIGNMENT,TEXT_ALIGN_CENTER);
     GuiSetStyle(DEFAULT,TEXT_SIZE,25);
     AppScreen currentWindow = MAIN ;
 
-    int monitor = GetCurrentMonitor();
-    int monitorWidth = GetMonitorWidth(monitor);
-    int monitorHeight = GetMonitorHeight(monitor);
-
-    SetWindowSize(monitorWidth,monitorHeight);
-    ToggleFullscreen();
 
     char imagePath[512] = "Drop an image here ...." ;
     bool imageLoaded = false ;
@@ -25,8 +24,6 @@ int main(){
     {
         BeginDrawing();
         ClearBackground(RAYWHITE);
-        char imagePath[512] ;
-        bool imageLoaded = false ;
         if (currentWindow == MAIN)
         {
             const char* maintext = "PIXEL-MUTE" ;
@@ -53,8 +50,8 @@ int main(){
             }
             const char* droptext = "DROP YOUR IMAGE HERE......";
             int droptextwidth = MeasureText(droptext,75);
-            DrawRectangleLines(200,200,GetScreenWidth()-400,GetScreenHeight()-400,BLACK);
-            DrawRectangle(201,201,GetScreenWidth()-402,GetScreenHeight()-402,LIGHTGRAY);
+            DrawRectangleLines(200,170,GetScreenWidth()-400,GetScreenHeight()-400,BLACK);
+            DrawRectangle(201,171,GetScreenWidth()-402,GetScreenHeight()-402,LIGHTGRAY);
             DrawText(droptext,float(GetScreenWidth()/2)-float(droptextwidth/2),float(GetScreenHeight()/2)-float(75/2),75,GRAY);
             if (IsFileDropped())
             {
@@ -68,6 +65,28 @@ int main(){
             UnloadDroppedFiles(droppedFiles);
             currentWindow = ENCODE_OPTIONS ;
             }
+
+            if (GuiButton(Rectangle{float(GetScreenWidth()/2)-150,float(GetScreenHeight())-220,300,60},"BROWSE FILES"))
+            {
+                const char* filterPattern[4] = { "*.png" , "*.jpg" , "*.jpeg" , "*.bmp"};
+                
+                const char* selectedFilePath = tinyfd_openFileDialog(
+                    "Select and Image",
+                    "",
+                    4,
+                    filterPattern,
+                    "Image Files",
+                    0
+                );
+
+                if (selectedFilePath != NULL)
+                {
+                    strcpy(imagePath,selectedFilePath);
+                    imageLoaded = true;
+                    currentWindow = ENCODE_OPTIONS;
+                }
+                
+            }
         }
 
         if (currentWindow == DECODE)
@@ -78,8 +97,8 @@ int main(){
             }
             const char* droptext = "DROP YOUR IMAGE HERE......";
             int droptextwidth = MeasureText(droptext,75);
-            DrawRectangleLines(200,200,GetScreenWidth()-400,GetScreenHeight()-400,BLACK);
-            DrawRectangle(201,201,GetScreenWidth()-402,GetScreenHeight()-402,LIGHTGRAY);
+            DrawRectangleLines(200,170,GetScreenWidth()-400,GetScreenHeight()-400,BLACK);
+            DrawRectangle(201,171,GetScreenWidth()-402,GetScreenHeight()-402,LIGHTGRAY);
             DrawText(droptext,float(GetScreenWidth()/2)-float(droptextwidth/2),float(GetScreenHeight()/2)-float(75/2),75,GRAY);
             if (IsFileDropped())
             {
@@ -93,7 +112,73 @@ int main(){
             UnloadDroppedFiles(droppedFiles);
             currentWindow = DECODE_OPTIONS;
             }
+
+            if (GuiButton(Rectangle{float(GetScreenWidth()/2)-150,float(GetScreenHeight())-220,300,60},"BROWSE FILES"))
+            {
+                const char* filterPattern[4] = { "*.png" , "*.jpg" , "*.jpeg" , "*.bmp"};
+                
+                const char* selectedFilePath = tinyfd_openFileDialog(
+                    "Select and Image",
+                    "",
+                    4,
+                    filterPattern,
+                    "Image Files",
+                    0
+                );
+
+                if (selectedFilePath != NULL)
+                {
+                    strcpy(imagePath,selectedFilePath);
+                    imageLoaded = true;
+                    currentWindow = ENCODE_OPTIONS;
+                }
+                
+            }
+            
         }
+
+        if (currentWindow == ENCODE_OPTIONS)
+        {
+            if (GuiButton(Rectangle{30,30,120,70},"BACK"))
+            {
+                currentWindow = MAIN;
+            }
+            if (GuiButton(Rectangle{float(GetScreenWidth()/2)-200,425,400,70},"LSB (Least Significant Bit)"))
+            {
+                //
+            }
+            if (GuiButton(Rectangle{float(GetScreenWidth()/2)-200,505,400,70},"EOF (End of File)"))
+            {
+                //
+            }
+            if (GuiButton(Rectangle{float(GetScreenWidth()/2)-200,585,400,70},"Palette / Alpha Channel Hiding"))
+            {
+                //
+            }
+
+        }
+
+        if (currentWindow == DECODE_OPTIONS)
+        {
+            if (GuiButton(Rectangle{30,30,120,70},"BACK"))
+            {
+                currentWindow = MAIN;
+            }
+            if (GuiButton(Rectangle{float(GetScreenWidth()/2)-200,385,400,70},"LSB (Least Significant Bit)"))
+            {
+                //
+            }
+            if (GuiButton(Rectangle{float(GetScreenWidth()/2)-200,465,400,70}," EOF (End of File)"))
+            {
+                //
+            }
+            if (GuiButton(Rectangle{float(GetScreenWidth()/2)-200,545,400,70},"Palette / Alpha Channel Hiding"))
+            {
+                //
+            }
+        }
+        
+        
         
         EndDrawing();
     }
@@ -102,11 +187,4 @@ int main(){
 
 }
 
-
-/*
-            const char* dropbox = "Drag and Drop your image here"; 
-            int droptextwidth = MeasureText(dropbox,20);
-            DrawRectangleLines(90,400,1800,600,DARKGRAY)
-            DrawText(dropbox,900-droptextwidth/2,600-10,10, GRAY);
-            EndDrawing();
-*/
+// 220

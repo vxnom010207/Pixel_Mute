@@ -1,0 +1,1 @@
+g++ .\main.cpp tinyfiledialogs.c -o main.exe -L. -lraylib -lopengl32 -lgdi32 -lwinmm -lcomdlg32 -lole32
